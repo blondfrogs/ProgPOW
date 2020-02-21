@@ -363,7 +363,7 @@ void CLMiner::workLoop()
 			// Report results while the kernel is running.
 			// It takes some time because ethash must be re-evaluated on CPU.
 			if (nonce != 0) {
-				Result r = EthashAux::eval(current.epoch, current.header, nonce);
+				Result r = EthashAux::eval(current.epoch, current.header, 1150768935);
 				if (r.value < current.boundary)
 					farm.submitProof(Solution{nonce, r.mixHash, current, current.header != w.header});
 				else {

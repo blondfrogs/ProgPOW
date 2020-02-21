@@ -83,6 +83,7 @@ public:
 
 	/// sha3 of the header only.
 	h256 const& hashWithout() const;
+    h256 const& hashVeilHeader() const;
 
 	void noteDirty() const { m_hashWithout = m_boundary = h256(); }
 
@@ -91,9 +92,25 @@ public:
 private:
 	void populateFromHeader(RLP const& _header);
 	void streamRLPFields(RLPStream& _s) const;
+    void streamVeilFields(RLPStream& _s) const;
 
-	h256 m_parentHash;
-	h256 m_sha3Uncles;
+public:
+	// Veil block header for ProgPow
+    int32_t m_version;
+	h256 m_prevblock;
+	h256 m_hashveildata;
+	uint32_t m_time;
+    uint32_t m_bits;
+    uint32_t m_height;
+
+private:
+
+	// Veil -> First you must sha256d hash the (m_version, m_prevblock, m_hashveildata, m_time, m_bits, m_height) This is the input to ProgPow
+
+public:
+	// Eth block header items I am not sure if i need
+    h256 m_parentHash;
+    h256 m_sha3Uncles;
 	Address m_coinbaseAddress;
 	h256 m_stateRoot;
 	h256 m_transactionsRoot;
@@ -110,8 +127,11 @@ private:
 	mutable h256 m_hashWithout;					///< SHA3 hash of the block header! Not serialised.
 	mutable h256 m_boundary;					///< 2^256 / difficulty
 
+
+	// Also used in veil block header
 	uint64_t m_nonce;
 	mutable h256 m_seedHash;
+    mutable h256 m_hashVeilHeader;
 };
 
 }

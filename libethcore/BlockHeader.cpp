@@ -23,6 +23,7 @@
 #include <libdevcore/Common.h>
 #include <libdevcore/Log.h>
 #include <libdevcore/RLP.h>
+#include <libethash/sha256.h>
 #include "EthashAux.h"
 
 using namespace std;
@@ -54,11 +55,42 @@ h256 const& BlockHeader::hashWithout() const
 	return m_hashWithout;
 }
 
+h256 const& BlockHeader::hashVeilHeader() const
+{
+
+    CSHA256 hasher;
+    unsigned char hash[32];
+
+    if (!m_hashVeilHeader)
+    {
+        RLPStream s;
+        streamVeilFields(s);
+        CHash256().Write(&s.out()[0], s.out().size()).Finalize(hash);
+        cout << toHex(s.out()) << endl;
+        cout << toHex(hash) << endl;
+        m_hashVeilHeader = h256(toHex(hash));
+
+    }
+    return m_hashVeilHeader;
+}
+
+
 void BlockHeader::streamRLPFields(RLPStream& _s) const
 {
 	_s	<< m_parentHash << m_sha3Uncles << m_coinbaseAddress << m_stateRoot << m_transactionsRoot << m_receiptsRoot << m_logBloom
 		<< m_difficulty << m_number << m_gasLimit << m_gasUsed << m_timestamp << m_extraData;
 }
+
+void BlockHeader::streamVeilFields(RLPStream& _s) const
+{
+    _s.pushInt(__bswap_32(m_version),4);
+    _s.appendRaw(m_prevblock.ref());
+    _s.appendRaw(m_hashveildata.ref());
+    _s.pushInt(__bswap_32(m_time),4);
+    _s.pushInt(__bswap_32(m_bits),4);
+    _s.pushInt(__bswap_32(m_height),4);
+}
+
 
 RLP BlockHeader::extractHeader(bytesConstRef _block)
 {
