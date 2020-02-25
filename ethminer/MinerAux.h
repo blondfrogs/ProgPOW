@@ -261,7 +261,7 @@ public:
 			}
 			m_endpoints[k_primary_ep_ix].SecLevel(secLevel);
 			m_endpoints[k_secondary_ep_ix].SecLevel(secLevel);
-				
+
 		}
 		else if ((arg == "-SE" || arg == "--stratum-email") && i + 1 < argc)
 		{
@@ -367,7 +367,7 @@ public:
 				BOOST_THROW_EXCEPTION(BadArgument());
 			}
 			m_endpoints[m_ep_ix] = PoolConnection(uri);
-			
+
 			OperationMode mode = OperationMode::None;
 			switch (uri.ProtoFamily())
 			{
@@ -797,7 +797,7 @@ public:
 			<< "    --opencl-devices <0 1 ..n> Select which OpenCL devices to mine on. Default is to use all" << endl
 			<< "    -t, --mining-threads <n> Limit number of CPU/GPU miners to n (default: use everything available on selected platform)" << endl
 			<< "    --list-devices List the detected OpenCL/CUDA devices and exit. Should be combined with -G, -U, or -X flag" << endl
-			<< "    --display-interval <n> Set mining stats display interval in seconds. (default: every 5 seconds)" << endl			
+			<< "    --display-interval <n> Set mining stats display interval in seconds. (default: every 5 seconds)" << endl
 			<< "    -L, --dag-load-mode <mode> DAG generation mode." << endl
 			<< "        parallel    - load DAG on all GPUs at the same time (default)" << endl
 			<< "        sequential  - load DAG on GPUs one after another. Use this when the miner crashes during DAG generation" << endl
@@ -870,7 +870,14 @@ private:
 			f.start("cuda", false);
 
 		WorkPackage current = WorkPackage(genesis);
-		
+
+		WorkPackage wp;
+		wp.boundary = h256("0x0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+		wp.epoch = 5;
+		wp.header = h256("0x5b3e8dfa1aafd3924a51f33e2d672d8dae32fa528d8b1d378d6e4db0ec5d665d");
+		wp.startNonce = 1150768935;
+		wp.height = 170915;
+
 
 		vector<uint64_t> results;
 		results.reserve(_trials);
@@ -880,7 +887,7 @@ private:
 		{
 			current.header = h256::random();
 			current.boundary = genesis.boundary();
-			f.setWork(current);	
+			f.setWork(wp);
 			if (!i)
 				cout << "Warming up..." << endl;
 			else
@@ -909,7 +916,7 @@ private:
 
 		exit(0);
 	}
-	
+
 	void doMiner()
 	{
 		map<string, Farm::SealerDescriptor> sealers;
