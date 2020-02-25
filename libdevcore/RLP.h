@@ -336,7 +336,6 @@ public:
 
 	/// Append given datum to the byte stream.
 	RLPStream& append(unsigned _s) { return append(bigint(_s)); }
-    RLPStream& append(u32 _s) { return append(bigint(_s)); }
 	RLPStream& append(u160 _s) { return append(bigint(_s)); }
 	RLPStream& append(u256 _s) { return append(bigint(_s)); }
 	RLPStream& append(bigint _s);
@@ -377,7 +376,6 @@ private:
 	/// @arg _count is number of characters for strings, data-bytes for ints, or items for lists.
 	void pushCount(size_t _count, byte _offset);
 
-public:
 	/// Push an integer as a raw big-endian byte-stream.
 	template <class _T> void pushInt(_T _i, size_t _br)
 	{

@@ -38,7 +38,6 @@
 #include <libethcore/EthashAux.h>
 #include <libethcore/Farm.h>
 #include <ethminer-buildinfo.h>
-#include <libethash/sha256.h>
 #if ETH_ETHASHCL
 #include <libethash-cl/CLMiner.h>
 #endif
@@ -741,7 +740,6 @@ public:
 		signal(SIGINT, MinerCLI::signalHandler);
 		signal(SIGTERM, MinerCLI::signalHandler);
 
-		m_mode = OperationMode::Benchmark;
 		if (m_mode == OperationMode::Benchmark)
 			doBenchmark(m_minerType, m_benchmarkWarmup, m_benchmarkTrial, m_benchmarkTrials);
 		else if (m_mode == OperationMode::Farm || m_mode == OperationMode::Stratum || m_mode == OperationMode::Simulation)
@@ -843,26 +841,7 @@ private:
 	{
 		BlockHeader genesis;
 		genesis.setNumber(m_benchmarkBlock);
-		genesis.setDifficulty(h256("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-
-		// Test block = 411e039e4f8ef7495a3c49a16478f6ba98460c3d9ce2b0d8a937d93ac68eb510
-		// ProgPow Header HEX = "000000243f7110776263460c88771a26ae9a9b8c2f2e533796f963f67d009282164dc7f1d46edf7ce73fbf398efc01a53c1f6d937ad7085a11337bef2d57604d6181bae368d54e5effff001fa39b0200"
-		genesis.m_version = 0x24000000;
-		genesis.m_prevblock = h256("3f7110776263460c88771a26ae9a9b8c2f2e533796f963f67d009282164dc7f1");
-		genesis.m_hashveildata = h256("d46edf7ce73fbf398efc01a53c1f6d937ad7085a11337bef2d57604d6181bae3");
-		genesis.m_time = 1582224744;
-		genesis.m_bits = 0x1f00ffff;
-		genesis.m_nonce = 1150768935;
-		genesis.m_height = 170915;
-        genesis.m_number = 170915;
-        genesis.setNumber(170915);
-
-
-		auto hash = genesis.hashVeilHeader();
-		// Assign to the same header that we got from veild. it is genesis.hashVeilHeader() but needs to be swapped from (LE) little endian or (BE) big endian.
-		hash = h256("5b3e8dfa1aafd3924a51f33e2d672d8dae32fa528d8b1d378d6e4db0ec5d665d");
-		genesis.m_hashVeilHeader = hash;
-        cout << "Got Veil Header hash = " << hash.hex().c_str() << endl;
+		genesis.setDifficulty(u256(1) << 64);
 
 		Farm f;
 		map<string, Farm::SealerDescriptor> sealers;
@@ -899,7 +878,7 @@ private:
 		uint64_t innerMean = 0;
 		for (unsigned i = 0; i <= _trials; ++i)
 		{
-			current.header = hash;
+			current.header = h256::random();
 			current.boundary = genesis.boundary();
 			f.setWork(current);	
 			if (!i)
@@ -908,14 +887,7 @@ private:
 				cout << "Trial " << i << "... " << flush <<endl;
 			this_thread::sleep_for(chrono::seconds(i ? _trialDuration : _warmupDuration));
 
-			cout << "Epoch: " <<  current.epoch << endl;
-            cout << "Header: " <<  current.header.hex() << endl;
-            Result r = EthashAux::eval(current.epoch, current.header, 1150768935);
-            cout << "Hash: " << r.value.hex() << endl;
-            cout << "Mix: " << r.mixHash.hex() << endl;
-
 			auto mp = f.miningProgress();
-//			f.work();
 			if (!i)
 				continue;
 			auto rate = mp.rate();
