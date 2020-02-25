@@ -142,7 +142,7 @@ public:
 private:
 	unsigned accepts  = 0;
 	unsigned rejects  = 0;
-	unsigned failures = 0; 
+	unsigned failures = 0;
 
 	unsigned acceptedStales = 0;
 	unsigned rejectedStales = 0;
