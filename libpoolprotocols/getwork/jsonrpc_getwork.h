@@ -18,8 +18,8 @@ class JsonrpcGetwork
         {
             Json::Value p;
             p = Json::nullValue;
-            Json::Value result = this->client->CallMethod("eth_getWork",p);
-            if (result.isArray())
+            Json::Value result = this->client->CallMethod("getblocktemplate", p);
+            if (result.isObject())
                 return result;
             else
                 throw jsonrpc::JsonRpcException(jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE, result.toStyledString());
@@ -30,7 +30,7 @@ class JsonrpcGetwork
             p.append(param1);
             p.append(param2);
             p.append(param3);
-            Json::Value result = this->client->CallMethod("eth_submitWork",p);
+            Json::Value result = this->client->CallMethod("pprpcsb",p);
             if (result.isBool())
                 return result.asBool();
             else

@@ -5,7 +5,7 @@ using namespace std;
 using namespace dev;
 using namespace eth;
 
-EthGetworkClient::EthGetworkClient(unsigned const & farmRecheckPeriod) : PoolClient(), Worker("getwork")
+EthGetworkClient::EthGetworkClient(unsigned const & farmRecheckPeriod) : PoolClient(), Worker("getblocktemplate")
 {
 	m_farmRecheckPeriod = farmRecheckPeriod;
 	m_authorized = true;
@@ -21,9 +21,10 @@ EthGetworkClient::~EthGetworkClient()
 
 void EthGetworkClient::connect()
 {
+    std::cout << m_conn.Host() << " " << m_conn.Pass() << " " << m_conn.Port() << " " << m_conn.User() << std::endl;
 	if (m_connection_changed) {
 		stringstream ss;
-		ss <<  "http://" + m_conn.Host() << ':' << m_conn.Port();
+		ss <<  "http://" + m_conn.User() + ":" + m_conn.Pass() + "@" + m_conn.Host() << ':' << m_conn.Port();
 		if (m_conn.Path().length())
 			ss << m_conn.Path();
 		p_client = new ::JsonrpcGetwork(new jsonrpc::HttpClient(ss.str()));
@@ -70,13 +71,16 @@ void EthGetworkClient::workLoop()
 			if (m_solutionToSubmit.nonce) {
 				try
 				{
-					bool accepted = p_client->eth_submitWork("0x" + toHex(m_solutionToSubmit.nonce), "0x" + toString(m_solutionToSubmit.work.header), "0x" + toString(m_solutionToSubmit.mixHash));
+					bool accepted = p_client->eth_submitWork(toString(m_solutionToSubmit.work.header), toString(m_solutionToSubmit.mixHash), "0x" + toHex(m_solutionToSubmit.nonce));
+                    cwarn << "I have tried to submit a new block";
 					if (accepted) {
+                        cwarn << "The block was accepted";
 						if (m_onSolutionAccepted) {
 							m_onSolutionAccepted(false);
 						}
 					}
 					else {
+                        cwarn << "The block was not accepted";
 						if (m_onSolutionRejected) {
 							m_onSolutionRejected(false);
 						}
@@ -88,6 +92,7 @@ void EthGetworkClient::workLoop()
 				{
 					cwarn << "Failed to submit solution.";
 					cwarn << boost::diagnostic_information(_e);
+					break;
 				}
 			}
 
@@ -96,10 +101,16 @@ void EthGetworkClient::workLoop()
 			{
 				Json::Value v = p_client->eth_getWork();
 				WorkPackage newWorkPackage;
-				newWorkPackage.header = h256(v[0].asString());
-				newWorkPackage.epoch = EthashAux::toEpoch(h256(v[1].asString()));
-				newWorkPackage.height = strtoul(v[3].asString().c_str(), nullptr, 0);
+                Json::Value header = v.get("pprpcheader", Json::Value::null);
+                Json::Value epoch = v.get("pprpcepoch", Json::Value::null);
+                Json::Value height = v.get("height", Json::Value::null);
+                Json::Value boundary = v.get("target", Json::Value::null);
 
+                cwarn << "HEADER: " << header.asString();
+
+				newWorkPackage.header = h256(header.asString());
+				newWorkPackage.epoch = epoch.asInt();
+				newWorkPackage.height = height.asInt64();
 				// Since we do not have a real connected state with getwork, we just fake it.
 				// If getting work succeeds we know that the connection works
 				if (m_justConnected && m_onConnected) {
@@ -110,35 +121,38 @@ void EthGetworkClient::workLoop()
 
 				// Check if header changes so the new workpackage is really new
 				if (newWorkPackage.header != m_prevWorkPackage.header) {
+                    cwarn << "coping new work package data to header";
 					m_prevWorkPackage.header = newWorkPackage.header;
 					m_prevWorkPackage.epoch = newWorkPackage.epoch;
 					m_prevWorkPackage.height = newWorkPackage.height;
-					m_prevWorkPackage.boundary = h256(fromHex(v[2].asString()), h256::AlignRight);
-
+					m_prevWorkPackage.boundary = h256(fromHex(boundary.asString()), h256::AlignRight);
+                    cwarn << "about to call on worked received";
 					if (m_onWorkReceived) {
+                        cwarn << "work received copied: ";
 						m_onWorkReceived(m_prevWorkPackage);
 					}
 				}
 			}
-			catch (jsonrpc::JsonRpcException)
+			catch (jsonrpc::JsonRpcException & e)
 			{
+                cwarn << e.GetCode();
 				cwarn << "Failed getting work!";
 				disconnect();
 			}
 
-			// Submit current hashrate if needed
-			if (!m_currentHashrateToSubmit.empty()) {
-				try
-				{
-					p_client->eth_submitHashrate(m_currentHashrateToSubmit, "0x" + m_client_id.hex());
-				}
-				catch (jsonrpc::JsonRpcException)
-				{
-					//cwarn << "Failed to submit hashrate.";
-					//cwarn << boost::diagnostic_information(_e);
-				}
-				m_currentHashrateToSubmit = "";
-			}
+//			// Submit current hashrate if needed
+//			if (!m_currentHashrateToSubmit.empty()) {
+//				try
+//				{
+//					p_client->eth_submitHashrate(m_currentHashrateToSubmit, "0x" + m_client_id.hex());
+//				}
+//				catch (jsonrpc::JsonRpcException)
+//				{
+//					//cwarn << "Failed to submit hashrate.";
+//					//cwarn << boost::diagnostic_information(_e);
+//				}
+//				m_currentHashrateToSubmit = "";
+//			}
 		}
 
 		// Sleep

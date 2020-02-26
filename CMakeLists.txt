@@ -14,8 +14,8 @@ cable_configure_toolchain(DEFAULT cxx11)
 set(HUNTER_CONFIGURATION_TYPES Release)
 
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.23.197.tar.gz"
-    SHA1 "f494a08bc9bb489527be1240d223d3ff69ece322"
+    URL "https://github.com/ruslo/hunter/archive/v0.20.34.tar.gz"
+    SHA1 "2f04d1beffdf39db1c40d8347beb8c10bbe9b8ed"
 	LOCAL
 )
 project(ethminer)
@@ -115,7 +115,6 @@ set(CPACK_PACKAGE_FILE_NAME ${PROJECT_NAME}-${PROJECT_VERSION}-${CMAKE_SYSTEM_NA
 set(CPACK_PACKAGE_CHECKSUM SHA256)
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY FALSE)
 include(CPack)
-
 
 # Export some variables for CIs
 if(PROJECT_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")

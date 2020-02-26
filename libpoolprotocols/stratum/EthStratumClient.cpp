@@ -648,9 +648,8 @@ void EthStratumClient::submitSolution(Solution solution) {
 			break;
 		case EthStratumClient::ETHPROXY:
 			json = "{\"id\": 4, \"worker\":\"" +
-				m_worker + "\", \"method\": \"eth_submitWork\", \"params\": [\"0x" +
-				nonceHex + "\",\"0x" + solution.work.header.hex() + "\",\"0x" +
-				solution.mixHash.hex() + "\"]}\n";
+				m_worker + "\", \"method\": \"pprpcsb\", \"params\": [\"" + solution.work.header.hex() + "\",\"" +
+				solution.mixHash.hex() + "\",\"0x" + nonceHex + "\"]}\n";
 			break;
 		case EthStratumClient::ETHEREUMSTRATUM:
 			json = "{\"id\": 4, \"method\": \"mining.submit\", \"params\": [\"" +

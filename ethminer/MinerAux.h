@@ -872,7 +872,7 @@ private:
 		WorkPackage current = WorkPackage(genesis);
 
 		WorkPackage wp;
-		wp.boundary = h256("0x0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+		wp.boundary = h256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 		wp.epoch = 5;
 		wp.header = h256("0x5b3e8dfa1aafd3924a51f33e2d672d8dae32fa528d8b1d378d6e4db0ec5d665d");
 		wp.startNonce = 1150768935;
