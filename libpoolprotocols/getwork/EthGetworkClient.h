@@ -26,7 +26,7 @@ public:
 
 private:
 	void workLoop() override;
-	unsigned m_farmRecheckPeriod = 500;
+	unsigned m_farmRecheckPeriod = 10000;
 
 	string m_currentHashrateToSubmit = "";
 	Solution m_solutionToSubmit;

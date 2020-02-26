@@ -643,30 +643,18 @@ void CUDAMiner::search(
             {
 				for (uint32_t i = 0; i < found_count; i++)
 				{
-
-					stringstream s;
-
-					s << "Nonce " << nonces[i] << endl;
-					s << "Mix   " << mixes[i] << endl;
-					std::cout << s.str() << endl;
-
-//					if (s_noeval)
-//						farm.submitProof(Solution{ nonces[i], mixes[i], w, m_new_work });
-//					else
-//					{
-//						Result r = EthashAux::eval(w.epoch, w.header, nonces[i]);
-//						if (r.value < w.boundary)
-//							farm.submitProof(Solution{ nonces[i], r.mixHash, w, m_new_work });
-//						else
-//						{
-//							farm.failedSolution();
-//							cwarn << "GPU gave incorrect result!";
-//						}
-//					}
+                    // Uncomment for debug only
+                    stringstream s;
+//					s << "Nonce " << nonces[i] << endl;
+//					s << "Mix   " << mixes[i] << endl;
+//					std::cout << s.str() << endl;
+                    farm.submitProof(Solution{ nonces[i], mixes[i], w, m_new_work });
+                    break;
 				}
             }
 
             addHashCount(batch_size);
+
 			bool t = true;
 			if (m_new_work.compare_exchange_strong(t, false)) {
 				cudaswitchlog << "Switch time "
