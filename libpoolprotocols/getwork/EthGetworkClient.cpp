@@ -134,7 +134,8 @@ void EthGetworkClient::workLoop()
 			}
 			catch (jsonrpc::JsonRpcException & e)
 			{
-                cwarn << e.GetCode();
+                cwarn << "Failed code: " << e.GetCode();
+                cwarn << "Failed Message: " <<  e.GetMessage();
 				cwarn << "Failed getting work!";
 				disconnect();
 			}

@@ -11,7 +11,7 @@ class JsonrpcGetwork
 {
     public:
         JsonrpcGetwork(jsonrpc::IClientConnector* conn) {
-			this->client = new jsonrpc::Client(*conn);
+			this->client = new jsonrpc::Client(*conn, jsonrpc::JSONRPC_CLIENT_V1);
 		}
 
         Json::Value eth_getWork() throw (jsonrpc::JsonRpcException)
