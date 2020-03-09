@@ -115,7 +115,7 @@ void CUDAMiner::workLoop()
 				if(!w || w.header == h256())
 				{
 					cnote << "No work.";
-//					std::this_thread::sleep_for(std::chrono::seconds(3));
+					std::this_thread::sleep_for(std::chrono::seconds(3));
 					continue;
 				}
 				if (current.epoch != w.epoch)
@@ -644,10 +644,10 @@ void CUDAMiner::search(
 				for (uint32_t i = 0; i < found_count; i++)
 				{
                     // Uncomment for debug only
-                    stringstream s;
+//                    stringstream s;
 //					s << "Nonce " << nonces[i] << endl;
-//					s << "Mix   " << mixes[i] << endl;
-//					std::cout << s.str() << endl;
+//                    s << "Mix   " << mixes[i] << endl;
+//                    std::cout << s.str() << endl;
                     farm.submitProof(Solution{ nonces[i], mixes[i], w, m_new_work });
                     break;
 				}

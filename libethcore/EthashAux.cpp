@@ -40,12 +40,12 @@ int EthashAux::toEpoch(h256 const& _seedHash)
         for (h256 h; h != _seedHash && epoch < 2048; ++epoch, h = sha3(h))
         {
         }
-        if (epoch == 2048)
-        {
-            std::ostringstream error;
-            error << "apparent epoch number for " << _seedHash << " is too high; max is " << 2048;
-            throw std::invalid_argument(error.str());
-        }
+//        if (epoch == 2048)
+//        {
+//            std::ostringstream error;
+//            error << "apparent epoch number for " << _seedHash << " is too high; max is " << 2048;
+//            throw std::invalid_argument(error.str());
+//        }
 
         ethash.m_cached_seed = _seedHash;
         ethash.m_cached_epoch = epoch;

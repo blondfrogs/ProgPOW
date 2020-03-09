@@ -432,6 +432,14 @@ void EthStratumClient::processReponse(Json::Value& responseObject)
 		}
 		if (m_connection.Version() != EthStratumClient::ETHPROXY)
 		{
+            m_nextWorkDifficulty = 1;
+            params = responseObject.get("result", Json::Value::null);
+            if (params.isArray())
+            {
+                std::string enonce = params.get((Json::Value::ArrayIndex)1, "").asString();
+                processExtranonce(enonce);
+            }
+
 			cnote << "Subscribed to stratum server";
 			os << "{\"id\": 3, \"method\": \"mining.authorize\", \"params\": [\"" << m_connection.User() << "\",\"" << m_connection.Pass() << "\"]}\n";
 		}
@@ -529,7 +537,9 @@ void EthStratumClient::processReponse(Json::Value& responseObject)
 					string sHeaderHash = params.get((Json::Value::ArrayIndex)index++, "").asString();
 					string sSeedHash = params.get((Json::Value::ArrayIndex)index++, "").asString();
 					string sShareTarget = params.get((Json::Value::ArrayIndex)index++, "").asString();
-					uint64_t iBlockHeight = params.get((Json::Value::ArrayIndex)index++, "").asInt64();
+					// The 4th entry is the boolean for canceling the job
+					// The 5th entry is for the block height
+					uint64_t iBlockHeight = params.get((Json::Value::ArrayIndex)5, "").asInt64();
 
 					// coinmine.pl fix
 					int l = sShareTarget.length();
