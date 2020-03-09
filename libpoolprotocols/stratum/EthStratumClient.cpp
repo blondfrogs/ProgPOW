@@ -560,6 +560,7 @@ void EthStratumClient::processReponse(Json::Value& responseObject)
 							m_current.boundary = h256(sShareTarget);
 							m_current.height = iBlockHeight;
 							m_current.job = h256(job);
+                            m_current.startNonce = ethash_swap_u64(*((uint64_t*)m_extraNonce.data()));
 
 							if (m_onWorkReceived) {
 								m_onWorkReceived(m_current);
