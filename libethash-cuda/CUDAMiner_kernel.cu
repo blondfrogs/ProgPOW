@@ -167,16 +167,19 @@ progpow_search(
 
     {
         // Absorb phase for initial round of keccak
+        uint32_t state[25] = {0x0};     // Keccak's state
+
         // 1st fill with header data (8 words)
-        uint32_t state[25];     // Keccak's state
         for (int i = 0; i < 8; i++)
             state[i] = header.uint32s[i];
+
         // 2nd fill with nonce (2 words)
         state[8] = nonce;
         state[9] = nonce >> 32;
-        // 3rd all remaining elements to zero
-        for (int i = 10; i < 25; i++)
-            state[i] = 0;
+
+        // 3rd apply input constraints
+        state[10] = keccakf_rndc[0];
+        state[18] = keccakf_rndc[6];
 
         // Run intial keccak round
         keccak_f800(state);
@@ -225,25 +228,30 @@ progpow_search(
             digest = digest_temp;
     }
 
-    uint32_t state[25];     // Keccak's state
-    for (int i = 0; i < 8; i++)
-        state[i] = state2[i];
-
     // Absorb phase for last round of keccak (256 bits)
-    // 1st initial 8 words of state are kept as carry-over from initial keccak
-    // 2nd subsequent 8 words are carried from digest/mix
-    for (int i = 8; i < 16; i++)
-        state[i] = digest.uint32s[i];
+    uint64_t result;
 
-    // 3rd all other elements to zero
-    for (int i = 16; i < 25; i++)
-        state[i] = 0;
+    {
+        uint32_t state[25] = {0x0};     // Keccak's state
 
-    // Run keccak loop
-    keccak_f800(state);
+        // 1st initial 8 words of state are kept as carry-over from initial keccak
+        for (int i = 0; i < 8; i++)
+            state[i] = state2[i];
 
-    // Extract result, swap endianness, and compare with target
-    uint64_t result = (uint64_t)cuda_swab32(state[0]) << 32 | cuda_swab32(state[1]);
+        // 2nd subsequent 8 words are carried from digest/mix
+        for (int i = 8; i < 16; i++)
+            state[i] = digest.uint32s[i - 8];
+
+        // 3rd apply input constraints
+        state[17] = keccakf_rndc[0];
+        state[24] = keccakf_rndc[6];
+
+        // Run keccak loop
+        keccak_f800(state);
+
+        // Extract result, swap endianness, and compare with target
+        result = (uint64_t) cuda_swab32(state[0]) << 32 | cuda_swab32(state[1]);
+    }
 
     // keccak(header .. keccak(header..nonce) .. digest);
     if (result >= target)

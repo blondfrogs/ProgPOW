@@ -570,6 +570,14 @@ void EthStratumClient::processReponse(Json::Value& responseObject)
 				}
 			}
 		}
+        else if (method == "mining.set_target") {
+            string sShareTarget = params.get((Json::Value::ArrayIndex)0, "").asString();
+            m_current.boundary = h256(sShareTarget);
+            cnote << "New target set to: "  << sShareTarget;
+            if (m_onWorkReceived) {
+                m_onWorkReceived(m_current);
+            }
+        }
 		else if (method == "mining.set_difficulty" && m_connection.Version() == EthStratumClient::ETHEREUMSTRATUM)
 		{
 			params = responseObject.get("params", Json::Value::null);

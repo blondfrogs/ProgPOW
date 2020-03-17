@@ -873,10 +873,10 @@ private:
 
 		WorkPackage wp;
 		wp.boundary = h256("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-		wp.epoch = 5;
-		wp.header = h256("0x5b3e8dfa1aafd3924a51f33e2d672d8dae32fa528d8b1d378d6e4db0ec5d665d");
-		wp.startNonce = 1150768935;
-		wp.height = 170915;
+		wp.epoch = 0;
+		wp.header = h256("0x63155f732f2bf556967f906155b510c917e48e99685ead76ea83f4eca03ab12b");
+		wp.startNonce = 0x0000000006ff2c47;
+		wp.height = 49;
 
 
 		vector<uint64_t> results;

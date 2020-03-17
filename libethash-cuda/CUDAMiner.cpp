@@ -645,7 +645,7 @@ void CUDAMiner::search(
 				{
                     // Uncomment for debug only
 //                    stringstream s;
-//					s << "Nonce " << nonces[i] << endl;
+//					s << "Nonce " << std::hex << nonces[i] << endl;
 //                    s << "Mix   " << mixes[i] << endl;
 //                    std::cout << s.str() << endl;
                     farm.submitProof(Solution{ nonces[i], mixes[i], w, m_new_work });
