@@ -30,6 +30,24 @@ __device__ __constant__ const uint32_t keccakf_rndc[24] = {
     0x0000800a, 0x8000000a, 0x80008081, 0x00008080, 0x80000001, 0x80008008
 };
 
+__device__ __constant__ const uint32_t ravencoin_rndc[15] = {
+        0x00000072, //R
+        0x00000041, //A
+        0x00000056, //V
+        0x00000045, //E
+        0x0000004E, //N
+        0x00000043, //C
+        0x0000004F, //O
+        0x00000049, //I
+        0x0000004E, //N
+        0x0000004B, //K
+        0x00000041, //A
+        0x00000057, //W
+        0x00000050, //P
+        0x0000004F, //O
+        0x00000057, //W
+};
+
 // Implementation of the permutation Keccakf with width 800.
 __device__ __forceinline__ void keccak_f800_round(uint32_t st[25], const int r)
 {
@@ -177,9 +195,9 @@ progpow_search(
         state[8] = nonce;
         state[9] = nonce >> 32;
 
-        // 3rd apply input constraints
-        state[10] = keccakf_rndc[0];
-        state[18] = keccakf_rndc[6];
+        // 3rd apply ravencoin input constraints
+        for (int i = 10; i < 25; i++)
+            state[i] = ravencoin_rndc[i-10];
 
         // Run intial keccak round
         keccak_f800(state);
@@ -242,9 +260,9 @@ progpow_search(
         for (int i = 8; i < 16; i++)
             state[i] = digest.uint32s[i - 8];
 
-        // 3rd apply input constraints
-        state[17] = keccakf_rndc[0];
-        state[24] = keccakf_rndc[6];
+        // 3rd apply ravencoin input constraints
+        for (int i = 16; i < 25; i++)
+            state[i] = ravencoin_rndc[i - 16];
 
         // Run keccak loop
         keccak_f800(state);
