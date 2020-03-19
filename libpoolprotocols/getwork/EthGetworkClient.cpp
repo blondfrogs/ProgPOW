@@ -72,15 +72,12 @@ void EthGetworkClient::workLoop()
 				try
 				{
 					bool accepted = p_client->eth_submitWork(toString(m_solutionToSubmit.work.header), toString(m_solutionToSubmit.mixHash), "0x" + toHex(m_solutionToSubmit.nonce));
-                    cwarn << "I have tried to submit a new block";
 					if (accepted) {
-                        cwarn << "The block was accepted";
 						if (m_onSolutionAccepted) {
 							m_onSolutionAccepted(false);
 						}
 					}
 					else {
-                        cwarn << "The block was not accepted";
 						if (m_onSolutionRejected) {
 							m_onSolutionRejected(false);
 						}
@@ -105,8 +102,6 @@ void EthGetworkClient::workLoop()
                 Json::Value height = v.get("height", Json::Value::null);
                 Json::Value boundary = v.get("target", Json::Value::null);
 
-                cwarn << "HEADER: " << header.asString();
-
 				newWorkPackage.header = h256(header.asString());
 				newWorkPackage.epoch = epoch.asInt();
 				newWorkPackage.height = height.asInt64();
@@ -120,22 +115,17 @@ void EthGetworkClient::workLoop()
 
 				// Check if header changes so the new workpackage is really new
 				if (newWorkPackage.header != m_prevWorkPackage.header) {
-                    cwarn << "coping new work package data to header";
 					m_prevWorkPackage.header = newWorkPackage.header;
 					m_prevWorkPackage.epoch = newWorkPackage.epoch;
 					m_prevWorkPackage.height = newWorkPackage.height;
 					m_prevWorkPackage.boundary = h256(fromHex(boundary.asString()), h256::AlignRight);
-                    cwarn << "about to call on worked received";
 					if (m_onWorkReceived) {
-                        cwarn << "work received copied: ";
 						m_onWorkReceived(m_prevWorkPackage);
 					}
 				}
 			}
 			catch (jsonrpc::JsonRpcException & e)
 			{
-                cwarn << "Failed code: " << e.GetCode();
-                cwarn << "Failed Message: " <<  e.GetMessage();
 				cwarn << "Failed getting work!";
 				disconnect();
 			}
